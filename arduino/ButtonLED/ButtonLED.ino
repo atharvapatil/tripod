@@ -1,13 +1,15 @@
+//Scanning for peripherals
+//Discovered peripheral <CBPeripheral: 0x283cbc5a0, identifier = DAEF64E3-A6A4-AB5B-49D8-60BF8264770E, name = Arduino, state = disconnected>
+//Connected peripheral Optional("Arduino")
+//Connected peripheral Optional(<CBPeripheral: 0x283cbc5a0, identifier = DAEF64E3-A6A4-AB5B-49D8-60BF8264770E, name = Arduino, state = connected>)
+
+
 #include <ArduinoBLE.h>
 
 const int ledPin = LED_BUILTIN; // set ledPin to on-board LED
 const int buttonPin = 4; // set buttonPin to digital pin 4
 
-BLEService tripodService("19B10010-E8F2-537E-4F6C-D104768A1214"); // create peripheral service
-
-BLEService ledService("a350c7b9-a466-4550-848c-77e1aa16a72e"); // create led service
-BLEService buttonService("43d34c21-ec24-4de8-98af-4faa86b279eb"); // create button service
-
+BLEService ledService("19B10010-E8F2-537E-4F6C-D104768A1214"); // create service
 
 // create switch characteristic and allow remote device to read and write
 BLEByteCharacteristic ledCharacteristic("ef9534b9-2c24-4ddc-b9b2-fc690ecf4cb4", BLERead | BLEWrite);
@@ -29,18 +31,16 @@ void setup() {
   }
 
   // set the local name peripheral advertises
-  BLE.setLocalName("tripod");
+  BLE.setLocalName("ButtonLED");
   // set the UUID for the service this peripheral advertises:
-  BLE.setAdvertisedService(tripodService);
-
-  // add the service
-  BLE.addService(tripodService);
-//  BLE.addService(ledService);
-  BLE.addService(buttonService);
+  BLE.setAdvertisedService(ledService);
 
   // add the characteristics to the service
   ledService.addCharacteristic(ledCharacteristic);
-  tripodService.addCharacteristic(buttonCharacteristic);
+  ledService.addCharacteristic(buttonCharacteristic);
+
+  // add the service
+  BLE.addService(ledService);
 
   ledCharacteristic.writeValue(0);
   buttonCharacteristic.writeValue(0);

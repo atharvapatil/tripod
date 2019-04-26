@@ -158,6 +158,8 @@ extension ViewController: CBPeripheralDelegate{
         peripheral.setNotifyValue(true, for: buttonCharecteristic)
         
         
+        buttonValue.text = "Place hand on button"
+        
     }
     
     func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
@@ -180,7 +182,3 @@ extension Data {
         return Int8(bitPattern: self[0])
     }
 }
-
-
-
-
