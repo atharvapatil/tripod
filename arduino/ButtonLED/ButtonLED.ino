@@ -1,15 +1,12 @@
-//Scanning for peripherals
-//Discovered peripheral <CBPeripheral: 0x283cbc5a0, identifier = DAEF64E3-A6A4-AB5B-49D8-60BF8264770E, name = Arduino, state = disconnected>
-//Connected peripheral Optional("Arduino")
-//Connected peripheral Optional(<CBPeripheral: 0x283cbc5a0, identifier = DAEF64E3-A6A4-AB5B-49D8-60BF8264770E, name = Arduino, state = connected>)
 
+// Hardware used Arduino mkr 1010
 
 #include <ArduinoBLE.h>
 
 const int ledPin = LED_BUILTIN; // set ledPin to on-board LED
 const int buttonPin = 4; // set buttonPin to digital pin 4
 
-BLEService ledService("19B10010-E8F2-537E-4F6C-D104768A1214"); // create service
+BLEService ledService("4cc4513b-1b63-4c93-a419-dddaeae3fdc7"); // create service
 
 // create switch characteristic and allow remote device to read and write
 BLEByteCharacteristic ledCharacteristic("ef9534b9-2c24-4ddc-b9b2-fc690ecf4cb4", BLERead | BLEWrite);

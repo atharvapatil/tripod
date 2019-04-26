@@ -11,8 +11,10 @@ import CoreBluetooth
 import Foundation
 
 
-// UUID to identify sensor one and commmunicate with it's charectersitcs
-let SERVICE_LED_UUID = "19B10010-E8F2-537E-4F6C-D104768A1214"
+// UUID to identify the arduino device which in this case is the same as the service
+let SERVICE_LED_UUID = "4cc4513b-1b63-4c93-a419-dddaeae3fdc7"
+
+// UUID's to identify the charecteristics of the sensors
 let LED_CHARACTERISTIC_UUID = "ef9534b9-2c24-4ddc-b9b2-fc690ecf4cb4"
 let BUTTON_CHARACTERISTIC_UUID = "db07a43f-07e3-4857-bccc-f01abfb8845c"
 
@@ -36,7 +38,7 @@ class ViewController: UIViewController {
     
     // DECLARING BLUETOOTH VARIABLES: ENDS HERE
     
-    
+    // label to appened states & the data incoming from the periphral
     @IBOutlet weak var buttonValue: UILabel!
     
     
@@ -44,9 +46,14 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
         
+        // Initiating bluetooth
         centralManager = CBCentralManager(delegate: self, queue: nil)
         
+        // Text values at different states.
+        // When the view loads the device starts connecting to Arduino
         buttonValue.text = "Connecting to Arduino"
+        
+        // TO-DO: Write and alert check here to see if Bluetooth is on or not. If Bluetooth is off through a alert with message.
     }
 
 
@@ -59,124 +66,158 @@ extension ViewController: CBCentralManagerDelegate{
     func centralManagerDidUpdateState(_ central: CBCentralManager) {
         
         if central.state == .poweredOn {
+            
+            // The commented statement below searches for all discoverable peripherals, turn on for testing
+            // central.scanForPeripherals(withServices: nil, options: [CBCentralManagerScanOptionAllowDuplicatesKey: false])
+            
+            // Scanning for a specific UUID peripheral
             central.scanForPeripherals(withServices: [CBUUID(string: SERVICE_LED_UUID)], options: nil)
-//            central.scanForPeripherals(withServices: nil, options: [CBCentralManagerScanOptionAllowDuplicatesKey: false])
-            print("Scanning for peripherals")
+            
+            // Logging to see of Bluetooth is scanning for the defined UUID peripheral
+            print("Scanning for peripheral with UUID: ", SERVICE_LED_UUID)
             
         }
     }
     
+    // This function handles the cases when the Bluetooth device we are looking for is discovered
     func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String : Any], rssi RSSI: NSNumber) {
 
-//        guard let peripheral = arduinoPeripheral else {
-//            return
-//        }
+        // If the peripheral is discovered log the details
         print("Discovered peripheral", peripheral)
     
-
+        // Reference it
         arduinoPeripheral = peripheral
         
-        
+        // Connect to the Arduino peripheral
         centralManager?.connect(arduinoPeripheral!, options: nil)
-//
-        print("Connected peripheral", arduinoPeripheral!.name as Any)
 
-        
-        
-        
+        // print out the connection attempt
+        print("Connecting to: ", arduinoPeripheral!)
+
     }
     
+    // This function hadles the cases when the connection is successful
     func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
-//        guard let peripheral = arduinoPeripheral else {
-//            return
-//        }
-//
-//        arduinoPeripheral = peripheral
-//        print("Connected to ", peripheral.name!)
-//        print("Pairing State ", peripheral.state)
-//        print("Connected UUID ", peripheral.identifier.uuidString)
-        print("Connected peripheral", arduinoPeripheral!)
+       
+        // Check if we are connected to the same peripheral
+        guard let peripheral = arduinoPeripheral else {
+            return
+        }
         
+        // Delegating
         peripheral.delegate = self
         
+        // the connected peripheral's properties
+        print("Connected to: ", arduinoPeripheral!)
+        
+        // Also the same feeback on the screen
+        buttonValue.text = "Connection Successful"
+        
+        // Now that the device is connected start loooking for services attached to it.
         peripheral.discoverServices([CBUUID(string: SERVICE_LED_UUID)])
-//        peripheral.discoverServices(nil)
-
+        
+        // Test statement to discover all the services attached to the peripheral
+        // peripheral.discoverServices(nil)
 
     }
     
 }
 
+// Now that is the a periphral discovered and referenced to start looking for properties attached to it.
 extension ViewController: CBPeripheralDelegate{
 
+    // This function handles the cases when there are services discovered for the peripheral
     func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?){
-    
-        buttonValue.text = "Connection Successful"
         
+        // Logging the discovered services
         print("Discovered services:", peripheral.services!)
         
+        // Feedback on screen
+        buttonValue.text = "Services Discovered"
+        
+        // iterating through the services to retrive the one we are looking for
         guard let LEDService = peripheral.services?.first(where: { service -> Bool in
             service.uuid == CBUUID(string: SERVICE_LED_UUID)
         }) else {
             return
         }
-
-
+        
+        // Referencing it
         ledService = LEDService
         
-        
+        // & Logging it's UUID to make sure it's the right one
         print("LED Service UUID", ledService!.uuid)
         
+        // Now that the service is discovered and referenced to. Search for the charecteristics attached to it.
         peripheral.discoverCharacteristics([CBUUID(string: LED_CHARACTERISTIC_UUID)], for: LEDService)
         peripheral.discoverCharacteristics([CBUUID(string: BUTTON_CHARACTERISTIC_UUID)], for: LEDService)
         
     }
 
+    // This function handles the cases when charecteristics are discovered(the ones we are looking for just above)
     func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
-//        print("Charecteristics Discovered", service.characteristics!)
         
+        // Log all the charecteristics for test
+        // print("Charecteristics Discovered", service.characteristics!)
+        
+        // Look for a specific charecteristic
         guard let ledCharecteristic = service.characteristics?.first(where: { characteristic -> Bool in
             characteristic.uuid == CBUUID(string: LED_CHARACTERISTIC_UUID)
         }) else {
             return
         }
         
+        // If discovered, reference it
         charOne = ledCharecteristic
         
+        // Log the properties of the charecteristic
         print("LED Charecteristic info ", ledCharecteristic)
         
+        
+        // Look for a specific charecteristic
         guard let buttonCharecteristic = service.characteristics?.first(where: { characteristic -> Bool in
             characteristic.uuid == CBUUID(string: BUTTON_CHARACTERISTIC_UUID)
         }) else {
             return
         }
         
+        // If discovered, reference it
         charTwo = buttonCharecteristic
         
+        // Log the properties of the charecteristic
         print("Button Charecteristic info ", buttonCharecteristic)
         
+        // If the propter can send/notify (BLENotify on arduino) then we need to reference a listener for it
+        // This is the listenter event for that
         peripheral.setNotifyValue(true, for: buttonCharecteristic)
         
-        
+        // Now that the charectertistic is discovered it's time to press the button
         buttonValue.text = "Place hand on button"
         
     }
     
+    // This function handles the cases when the sensor is sending some data
     func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
+        
+        // Extract data from the charecteristic
         guard let data = charTwo!.value else {
             return
         }
-    
-        buttonValue.text = "Pulse Data"
         
+        // Convert it to a human readable value
         let integerValue = data.int8Value()
         
+        // Log that value
         print("Button integer value", integerValue)
+        
+        // Once I figured out how to convert byte data to String appened the data here.
+        buttonValue.text = "Pulse Data"
         
     }
 
 }
 
+// Functions to convert raw data to other formats
 extension Data {
     func int8Value() -> Int8 {
         return Int8(bitPattern: self[0])
