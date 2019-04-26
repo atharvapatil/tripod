@@ -34,13 +34,13 @@ void setup() {
   BLE.setAdvertisedService(tripodService);
 
   // add the service
-//  BLE.addService(tripodService);
-  BLE.addService(ledService);
+  BLE.addService(tripodService);
+//  BLE.addService(ledService);
   BLE.addService(buttonService);
 
   // add the characteristics to the service
   ledService.addCharacteristic(ledCharacteristic);
-  buttonService.addCharacteristic(buttonCharacteristic);
+  tripodService.addCharacteristic(buttonCharacteristic);
 
   ledCharacteristic.writeValue(0);
   buttonCharacteristic.writeValue(0);
