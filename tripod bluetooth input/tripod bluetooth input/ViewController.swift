@@ -199,6 +199,27 @@ extension ViewController: CBPeripheralDelegate{
     // This function handles the cases when the sensor is sending some data
     func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
         
+        // SB Notes:
+        // Return if there's an error
+        if let error = error {
+            print("Error receiving characteristic value:", error.localizedDescription)
+            return
+        }
+        
+        // As a best practice, you should grab the characteristic
+        // that is passed here and do a check that it is the characteristic that you expect
+        
+        guard let updatedData = characteristic.value else {
+            // It's also a good idea to print before returning so you can debug
+            print("Unable to get data from characeristic:", characteristic)
+            return
+        }
+        
+        // Look into received bytes
+        let byteArray = [UInt8](updatedData)
+        print("Received:", byteArray)
+        
+        
         // Extract data from the charecteristic
         guard let data = charTwo!.value else {
             return
