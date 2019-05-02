@@ -225,14 +225,21 @@ extension ViewController: CBPeripheralDelegate{
             return
         }
         
+        
         // Convert it to a human readable value
         let integerValue = data.int8Value()
+        
+        if integerValue == 0{
+            buttonValue.text = "Button Pressed"
+        } else {
+            buttonValue.text = "Button Off"
+        }
         
         // Log that value
         print("Button integer value", integerValue)
         
         // Once I figured out how to convert byte data to String appened the data here.
-        buttonValue.text = "Pulse Data"
+//        buttonValue.text = "Pulse Data"
         
     }
 
