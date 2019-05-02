@@ -41,6 +41,8 @@ class ViewController: UIViewController {
     // label to appened states & the data incoming from the periphral
     @IBOutlet weak var buttonValue: UILabel!
     
+    @IBOutlet weak var otherButton: UILabel!
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -190,6 +192,7 @@ extension ViewController: CBPeripheralDelegate{
         // If the propter can send/notify (BLENotify on arduino) then we need to reference a listener for it
         // This is the listenter event for that
         peripheral.setNotifyValue(true, for: buttonCharecteristic)
+        peripheral.setNotifyValue(true, for: ledCharecteristic)
         
         // Now that the charectertistic is discovered it's time to press the button
         buttonValue.text = "Place hand on button"
@@ -225,18 +228,32 @@ extension ViewController: CBPeripheralDelegate{
             return
         }
         
-        
         // Convert it to a human readable value
         let integerValue = data.int8Value()
         
+        // Log that value
+//        print("Button integer value", integerValue)
+        
         if integerValue == 0{
-            buttonValue.text = "Button Pressed"
+            buttonValue.text = "First Button Pressed"
         } else {
-            buttonValue.text = "Button Off"
+            buttonValue.text = "First Button Released"
         }
         
-        // Log that value
-        print("Button integer value", integerValue)
+        guard let dataTwo = charOne!.value else {
+            return
+        }
+
+
+        let buttonTwoValue = dataTwo.int8Value()
+        
+        if buttonTwoValue == 0{
+            otherButton.text = "Second Button Pressed"
+        } else {
+            otherButton.text = "Second Button Released"
+        }
+        
+//        print("Other Button integer value", buttonTwoValue)
         
         // Once I figured out how to convert byte data to String appened the data here.
 //        buttonValue.text = "Pulse Data"

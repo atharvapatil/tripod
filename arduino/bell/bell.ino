@@ -4,13 +4,13 @@
 
 #include <ArduinoBLE.h>
 
-const int ledPin = LED_BUILTIN; // set ledPin to on-board LED
-const int buttonPin = 1; // set buttonPin to digital pin 4
+const int ledPin = 0; // set ledPin to on-board LED
+const int buttonPin = 1; // set buttonPin to digital pin 1
 
 BLEService ledService("4cc4513b-1b63-4c93-a419-dddaeae3fdc7"); // create service
 
 // create switch characteristic and allow remote device to read and write
-BLEByteCharacteristic ledCharacteristic("ef9534b9-2c24-4ddc-b9b2-fc690ecf4cb4", BLERead | BLEWrite);
+BLEByteCharacteristic ledCharacteristic("ef9534b9-2c24-4ddc-b9b2-fc690ecf4cb4", BLERead | BLENotify);
 // create button characteristic and allow remote device to get notifications
 BLEByteCharacteristic buttonCharacteristic("db07a43f-07e3-4857-bccc-f01abfb8845c", BLERead | BLENotify);
 
@@ -18,7 +18,7 @@ void setup() {
   Serial.begin(9600);
   while (!Serial);
 
-  pinMode(ledPin, OUTPUT); // use the LED as an output
+  pinMode(ledPin, INPUT); // use the LED as an output
   pinMode(buttonPin, INPUT); // use button pin as an input
 
   // begin initialization
@@ -64,19 +64,32 @@ void loop() {
 
   if (buttonChanged) {
     // button state changed, update characteristics
-    ledCharacteristic.writeValue(buttonValue);
+//    ledCharacteristic.writeValue(buttonValue);
     buttonCharacteristic.writeValue(buttonValue);
+    Serial.println("Button One interaction");
   }
 
-   if (buttonValue == LOW) {
-      Serial.println("LED on");
-      digitalWrite(ledPin, HIGH);
-    } else {
-      Serial.println("LED off");
-      digitalWrite(ledPin, LOW);
-    }
+//   if (buttonValue == LOW) {
+//      Serial.println("LED on");
+//      digitalWrite(ledPin, HIGH);
+//    } else {
+//      Serial.println("LED off");
+//      digitalWrite(ledPin, LOW);
+//    }
 
+  char buttonTwoValue = digitalRead(ledPin);
 
+  boolean buttonTwoChanged = (ledCharacteristic.value() != buttonTwoValue);
+
+   if (buttonTwoChanged) {
+    // button state changed, update characteristics
+    ledCharacteristic.writeValue(buttonTwoValue);
+//    buttonCharacteristic.writeValue(buttonValue);
+
+Serial.println("Button Two interaction");
+  }
+
+  
 //  if (ledCharacteristic.written() || buttonChanged) {
 //    // update LED, either central has written to characteristic or button state has changed
 //    if (ledCharacteristic.value()) {
