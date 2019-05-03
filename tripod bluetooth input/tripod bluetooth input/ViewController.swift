@@ -221,6 +221,7 @@ extension ViewController: CBPeripheralDelegate{
         // Look into received bytes
         let byteArray = [UInt8](updatedData)
         print("Received:", byteArray)
+//        print(byteArray, String(bytes: byteArray, encoding: .utf8)!)
         
         
         // Extract data from the charecteristic
@@ -246,12 +247,15 @@ extension ViewController: CBPeripheralDelegate{
 
 
         let buttonTwoValue = dataTwo.int8Value()
+//         let buttonTwoValue = [UInt8](dataTwo)
         
-        if buttonTwoValue == 0{
-            otherButton.text = "Second Button Pressed"
-        } else {
-            otherButton.text = "Second Button Released"
-        }
+        otherButton.text = "Potentiometer input: " + "\(buttonTwoValue)"
+        
+//        if buttonTwoValue > 75{
+//            otherButton.text = "Potentiometer > 75"
+//        } else {
+//            otherButton.text = "Potentiometer < 75"
+//        }
         
 //        print("Other Button integer value", buttonTwoValue)
         
@@ -267,4 +271,5 @@ extension Data {
     func int8Value() -> Int8 {
         return Int8(bitPattern: self[0])
     }
+    
 }

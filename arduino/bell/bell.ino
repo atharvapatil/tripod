@@ -4,8 +4,10 @@
 
 #include <ArduinoBLE.h>
 
-const int ledPin = 0; // set ledPin to on-board LED
+//const int ledPin = 0; // set ledPin to on-board LED
+int ledPin = A6; // set ledPin to on-board LED
 const int buttonPin = 1; // set buttonPin to digital pin 1
+int potValue = 0;
 
 BLEService ledService("4cc4513b-1b63-4c93-a419-dddaeae3fdc7"); // create service
 
@@ -77,16 +79,24 @@ void loop() {
 //      digitalWrite(ledPin, LOW);
 //    }
 
-  char buttonTwoValue = digitalRead(ledPin);
+//  char buttonTwoValue = digitalRead(ledPin);
 
-  boolean buttonTwoChanged = (ledCharacteristic.value() != buttonTwoValue);
+  int potValue = analogRead(ledPin);
+
+  
+
+  int mappedButtonTwoValue = map(potValue, 0, 1024, 0, 255);
+  Serial.println(mappedButtonTwoValue);
+
+
+  boolean buttonTwoChanged = (ledCharacteristic.value() != mappedButtonTwoValue);
 
    if (buttonTwoChanged) {
     // button state changed, update characteristics
-    ledCharacteristic.writeValue(buttonTwoValue);
+    ledCharacteristic.writeValue(mappedButtonTwoValue);
 //    buttonCharacteristic.writeValue(buttonValue);
 
-Serial.println("Button Two interaction");
+//Serial.println(mappedButtonTwoValue);
   }
 
   
