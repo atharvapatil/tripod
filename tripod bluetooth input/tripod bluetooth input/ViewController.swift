@@ -44,6 +44,8 @@ class ViewController: UIViewController {
     @IBOutlet weak var otherButton: UILabel!
     
     
+    
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
@@ -250,19 +252,10 @@ extension ViewController: CBPeripheralDelegate{
 //         let buttonTwoValue = [UInt8](dataTwo)
         
         otherButton.text = "Potentiometer input: " + "\(buttonTwoValue)"
-        
-//        if buttonTwoValue > 75{
-//            otherButton.text = "Potentiometer > 75"
-//        } else {
-//            otherButton.text = "Potentiometer < 75"
-//        }
-        
-//        print("Other Button integer value", buttonTwoValue)
-        
-        // Once I figured out how to convert byte data to String appened the data here.
-//        buttonValue.text = "Pulse Data"
+
         
     }
+    
 
 }
 
